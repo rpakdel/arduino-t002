@@ -1,0 +1,43 @@
+﻿doctype html
+html
+  head
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    meta(name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0")
+  body
+    #container
+    br
+    #gyro 
+
+        p#tracking Not Tracking
+        p Orientation
+        p Alpha: 
+            span#alpha
+        p Beta:  
+            span#beta
+        p Gamma:  
+            span#gamma
+
+        p Acceleration
+        p X: 
+            span#xacc
+        p Y: 
+            span#yacc
+        p Z: 
+            span#zacc
+
+        p Bot Location
+        p Online: 
+            span#online
+        p Lng: 
+            span#lng
+        p Lat: 
+            span#lat
+    br
+    script(src='/javascripts/virtualjoystick.js')
+    script(src='/javascripts/gyro.min.js')
+    script(src='/javascripts/control.js')
+    script.
+        document.addEventListener("DOMContentLoaded", () => {
+            var c = new Control();
+            c.init();
+        });
