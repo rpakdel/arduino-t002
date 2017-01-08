@@ -11,8 +11,10 @@ var Bot = class {
         this.mStationIp = station_ip;
         this.mStationPort = station_port;
         this.mJoy = {
-            "x": 0,
-            "y": 0
+            "Id": id,
+            "X": 0,
+            "Y": 0,
+            "Button": 0
         };
 
         this.mServer = dgram.createSocket('udp4');
@@ -23,12 +25,17 @@ var Bot = class {
 
         this.mServer.on('message', (message, remote) => {
             this.mIsOnline = true;
-            console.log(remote.address + ':' + remote.port + ' - ' + message);
+            //console.log(remote.address + ':' + remote.port + ' - ' + message);
             var str = message.toString();
-            if (str.length > 0 && str[0] == 'l') {
-                var l = str.substr(1);
-                this.mLoc = JSON.parse(l);
-                console.log(l);
+            if (str.length > 0) {               
+                try {
+                    this.mLoc = JSON.parse(str);
+                }
+                catch(err) {
+                    console.log('Could not parse GPS coords:', err);
+                } 
+                
+                //console.log(this.mLoc);
             }
         });
         
@@ -66,7 +73,12 @@ var Bot = class {
     }
 
     set joy(j) {
-        this.mJoy = j;
+        this.mJoy = {
+            "Id": this.mId,
+            "X": j.x,
+            "Y": j.y,
+            "Button": 0
+        };
         this.sendJoyToBase();
     }
 }

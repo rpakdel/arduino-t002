@@ -2,7 +2,7 @@
 var router = express.Router();
 var Bot = require('../model/bot');
 
-const STATION_IP = '192.168.1.27';
+const STATION_IP = '192.168.1.141';
 const STATION_PORT = 6969;
 
 var mBot = new Bot(0, STATION_IP, STATION_PORT);

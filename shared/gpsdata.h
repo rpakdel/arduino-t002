@@ -1,14 +1,14 @@
 #pragma once
 
 #include <Arduino.h>
-#include <ArduinoJson.h>
 
+#pragma pack(1)
 typedef struct _GpsData
 {
     // bot id
-    byte Id;
+    uint8_t Id;
     // whether gps data is valid
-    byte IsValid;
+    uint8_t IsValid;
     // longtitude from -180 to 180
     float Lon;
     // latitude from -90 to 90
@@ -18,6 +18,15 @@ typedef struct _GpsData
 } GpsData;
 
 const size_t gpsDataSize = sizeof(GpsData);
+
+void copyGpsDataToVolatile(GpsData& source, volatile GpsData& target)
+{
+    target.Id = source.Id;
+    target.IsValid = source.IsValid;
+    target.Lon = source.Lon;
+    target.Lat = source.Lat;
+    target.Alt = source.Alt;
+}
 
 void printGpsData(GpsData& gpsData, Print& print)
 {
@@ -42,18 +51,25 @@ size_t jsonSerializeGpsData(GpsData &gpsData, char* buffer, size_t bufferSize)
 {
     if (!gpsData.IsValid)
     {
+        buffer[0] = '\0';
         return 0;
     }
 
-    StaticJsonBuffer<255> jsonBuffer;
-    JsonObject& root = jsonBuffer.createObject();
+    char latStr[10 + 1 + 1];
+    dtostrf(gpsData.Lat, 6, 5, latStr);
 
-    JsonObject& gps = root.createNestedObject("gps");
-    gps["Id"] = gpsData.Id;
-    gps["IsValid"] = gpsData.IsValid;
-    gps["Lon"] = gpsData.Lon;
-    gps["Lat"] = gpsData.Lat;
-    gps["Alt"] = gpsData.Alt;
+    char lonStr[10 + 1 + 1];
+    dtostrf(gpsData.Lon, 6, 5, lonStr);
 
-    return gps.printTo(buffer, bufferSize);
+    char altStr[6 + 1 + 1];
+    dtostrf(gpsData.Alt, 6, 2, altStr);
+
+    sprintf(buffer, "{ \"Id\": %d, \"IsValid\": %d, \"Lat\": %s, \"Lon\": %s, \"Alt\": %s }\0",
+        gpsData.Id,
+        gpsData.IsValid,
+        latStr,
+        lonStr,
+        altStr);
+
+    return strlen(buffer);
 }

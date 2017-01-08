@@ -12,11 +12,11 @@
 #include "joydata.h"
 
 SoftwareSerial SoftSerial(2, 3); // RX, TX
-#define DEBUG_SERIAL SoftSerial
+#define DEBUG_SERIAL Serial
 #define DEBUG_BAUD 115200
 
-#define ESP_SERIAL Serial
-#define ESP_BAUD 115200
+#define ESP_SERIAL SoftSerial
+#define ESP_BAUD 9600
 
 
 RF24 radio(9, 10);
@@ -113,6 +113,7 @@ void loop(void)
     while (ESP_SERIAL.available())
     {
         int c = ESP_SERIAL.read();
+        //DEBUG_SERIAL.print((char)c);
         if (c == '\n' || readCount == (ESP_BUFFER_SIZE - 1))
         {
             serialBuffer[readCount] = 0;
@@ -149,5 +150,12 @@ void loop(void)
             readCount++;
         }
     }
+
+    //while (DEBUG_SERIAL.available())
+    //{
+    //    int r = DEBUG_SERIAL.read();
+    //    DEBUG_SERIAL.print((char)r);
+    //    ESP_SERIAL.println((char)r);
+    //}
 }
 

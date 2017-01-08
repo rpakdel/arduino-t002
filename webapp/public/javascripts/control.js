@@ -264,6 +264,7 @@
         xhr.onload = function () {
             var lngE = document.getElementById("lng");
             var latE = document.getElementById("lat");
+            var altE = document.getElementById("alt");
 
             if (xhr.status === 200) {
 
@@ -272,11 +273,12 @@
 
                     
 
-                    if (gpsData.valid) {
-                        lngE.innerText = gpsData.lng;
-                        latE.innerText = gpsData.lat;
+                    if (gpsData.IsValid) {
+                        lngE.innerText = gpsData.Lon;
+                        latE.innerText = gpsData.Lat;
+                        altE.innerText = gpsData.Alt;
 
-                        var latLng = new google.maps.LatLng(gpsData.lat, gpsData.lng);
+                        var latLng = new google.maps.LatLng(gpsData.Lat, gpsData.Lon);
 
                         self.mMarker.setPosition(latLng);
                         self.mGmap.panTo(latLng);

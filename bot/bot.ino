@@ -16,8 +16,12 @@
 #include <SoftwareSerial.h>
 #include <TinyGPS++.h>
 
-#include "../../T-002/shared/joydata.h"
-#include "../../T-002/shared/gpsdata.h"
+#include <ArduinoJson.h>
+
+#include "../../arduino-t002/shared/joydata.h"
+#include "../../arduino-t002/shared/gpsdata.h"
+
+#define BOTID 0
 
 #define DEBUG_SERIAL Serial
 
@@ -54,11 +58,11 @@ void initRadio()
     radio.begin();
     radio.setAutoAck(1);
     radio.enableAckPayload();
-    radio.setPayloadSize(sizeof(GpsData));
+    radio.setPayloadSize(gpsDataSize);
     radio.setRetries(15, 15);
     radio.setPALevel(RF24_PA_MAX);
     radio.setDataRate(RF24_2MBPS);
-    radio.openWritingPipe(addresses[1]);
+    //radio.openWritingPipe(addresses[1]);
     radio.openReadingPipe(0, addresses[0]);
     radio.startListening();
 }
@@ -90,7 +94,7 @@ void setup()
 
     display.setCursor(0, 0);
     display.clearToEOL();
-    display.print(F("T-002: Ready"));
+    display.print(F("T-002: Ready!"));
 }
 
 byte displayJoyData(JoyData& joyData, byte rowIndex)
@@ -116,15 +120,11 @@ byte displayJoyData(JoyData& joyData, byte rowIndex)
     return rowIndex;
 }
 
-static byte joyDataBytes[joyDataSize];
-
 void sendJoyDataToMotor(JoyData& joyData)
 {
-    memcpy(&joyDataBytes[0], &joyData, joyDataSize);
     Wire.beginTransmission(MOTOR_I2C_ADDRESS);
-    Wire.write(&joyDataBytes[0], joyDataSize);
+    Wire.write((uint8_t*)&joyData, joyDataSize);
     Wire.endTransmission();
-    //motorSerial.write(&joyDataBytes[0], joyDataSize);
 }
 
 
@@ -178,7 +178,7 @@ void loop()
     if (radio.available(&pipeNo))
     {
         JoyData joyData;
-        radio.read(&joyData, sizeof(JoyData));
+        radio.read(&joyData, joyDataSize);
         // respond with gps data
         radio.writeAckPayload(pipeNo, &gpsData, gpsDataSize);
 
@@ -197,7 +197,7 @@ void loop()
         int g = gpsSerial.read();
         if (tinyGPS.encode(g))
         {
-            gpsData.Id = 0;
+            gpsData.Id = BOTID;
             gpsData.IsValid = true;
             gpsData.Lat = tinyGPS.location.lat();
             gpsData.Lon = tinyGPS.location.lng();
